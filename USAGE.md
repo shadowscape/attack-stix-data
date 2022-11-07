@@ -35,6 +35,7 @@ We also recommend reading the [ATT&CK Design and Philosophy Paper](https://attac
         -   [Groups](#groups)
         -   [Software](#software)
         -   [Data Sources and Data Components](#data-sources-and-data-components)
+        -   [Campaigns](#campaigns)
         -   [Relationships](#relationships)
         -   [Collections](#collections)
 -   [Accessing ATT&CK data in python](#accessing-attck-data-in-python)
@@ -79,8 +80,8 @@ The data in this repository is STIX 2.1 and divided into folders, one for each d
 Tools consuming ATT&CK-formatted data may support multiple versions of the ATT&CK spec. The ATT&CK Spec version number is used to document the current version of the spec used by a given object in the knowledge base, and is tracked by the `x_mitre_attack_spec_version` field on the objects of the knowledge base.
 
 | Current ATT&CK Spec Version | Link to Changelog         |
-| :-------------------------- | :------------------------ |
-| `2.1.0`                     | [changelog](CHANGELOG.md) |
+|:----------------------------| :------------------------ |
+| `3.0.0`                     | [changelog](CHANGELOG.md) |
 
 ATT&CK uses a mix of predefined and custom STIX objects to implement ATT&CK concepts. The following table is a mapping of ATT&CK concepts to STIX 2.1 objects:
 
@@ -96,6 +97,7 @@ ATT&CK uses a mix of predefined and custom STIX objects to implement ATT&CK conc
 | [Software](#software)                                                                                                                     | [malware](http://docs.oasis-open.org/cti/stix/v2.0/csprd01/part2-stix-objects/stix-v2.0-csprd01-part2-stix-objects.html#_Toc476230945) or [tool](http://docs.oasis-open.org/cti/stix/v2.0/csprd01/part2-stix-objects/stix-v2.0-csprd01-part2-stix-objects.html#_Toc476230961) | no           |
 | [Collection](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md)<sup>1</sup> | `x-mitre-collection`                                                                                                                                                                                                                                                          | yes          |
 | [Data Source](#data-source)                                                                                                               | `x-mitre-data-source`                                                                                                                                                                                                                                                         | yes          |
+| [Campaign](#campaigns) | [campaign](http://docs.oasis-open.org/cti/stix/v2.0/csprd01/part2-stix-objects/stix-v2.0-csprd01-part2-stix-objects.html#_Toc476230925) | no |
 
 <sup>1</sup> This type was added in the upgrade to STIX 2.1 and is not available in [the STIX 2.0 dataset](https://github.com/mitre/cti).
 
@@ -110,37 +112,33 @@ Two additional object types are found in the ATT&CK catalog:
 
 There are three general ways that ATT&CK extends the STIX 2.1 format:
 
--   Custom object types. Object types prefixed with `x-mitre-`, e.g `x-mitre-matrix`, are custom STIX types extending the STIX 2.1 spec. They follow the general [STIX Domain Object pattern](https://docs.oasis-open.org/cti/stix/v2.0/csprd01/part2-stix-objects/stix-v2.0-csprd01-part2-stix-objects.html#_Toc476230920) but describe concepts not covered by types defined in STIX 2.1.
+- Custom object types. Object types prefixed with `x-mitre-`, e.g `x-mitre-matrix`, are custom STIX types extending the STIX 2.1 spec. They follow the general [STIX Domain Object pattern](https://docs.oasis-open.org/cti/stix/v2.0/csprd01/part2-stix-objects/stix-v2.0-csprd01-part2-stix-objects.html#_Toc476230920) but describe concepts not covered by types defined in STIX 2.1.
 
--   Extensions of existing object types. Fields extending the STIX 2.1 spec are prefixed with `x_mitre_`, e.g `x_mitre_platforms` in `attack-patterns`. The following extended fields are common across ATT&CK types except where otherwise noted:
+- Extensions of existing object types. Fields extending the STIX 2.1 spec are prefixed with `x_mitre_`, e.g `x_mitre_platforms` in `attack-patterns`. The following extended fields are common across ATT&CK types except where otherwise noted:
 
-    | Field                                       | Type     | Description                                                                                                                                                                                                                                                                                                 |
-    | :------------------------------------------ | :------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-    | `x_mitre_version`                           | string   | The version of the object in format `major.minor` where `major` and `minor` are integers. ATT&CK increments this version number when the object content is updated. not found on `relationship` objects.                                                                                                    |
-    | `x_mitre_contributors`                      | string[] | People and organizations who have contributed to the object. Not found on `relationship` objects.                                                                                                                                                                                                           |
-    | `x_mitre_modified_by_ref`<sup>1</sup>       | string   | The STIX ID of an `identity` object. Used to track the identity of the individual or organization which created the current _version_ of the object. Previous versions of the object may have been created by other individuals or organizations.                                                           |
-    | `x_mitre_domains`<sup>1</sup>               | string[] | Identifies the domains the object is found in. See [domains](#domains) for more information. Not found on `relationship` objects.                                                                                                                                                                           |
-    | `x_mitre_attack_spec_version`<sup>1,2</sup> | string   | The version of the ATT&CK spec used by the object. Consuming software can use this field to determine if the data format is supported. If the field is not present on an object the spec version will be assumed to be `2.0.0`. See [the ATT&CK Spec](#the-attck-spec) for the current spec version number. |
+| Field                                     | Type     | Description                                                                                                                                                                                                                                                                                                 |
+| :---------------------------------------- | :------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `x_mitre_version`                         | string   | The version of the object in format `major.minor` where `major` and `minor` are integers. ATT&CK increments this version number when the object content is updated. not found on `relationship` objects.                                                                                                    |
+| `x_mitre_contributors`                    | string[] | People and organizations who have contributed to the object. Not found on `relationship` objects.                                                                                                                                                                                                           |
+| `x_mitre_modified_by_ref`                 | string   | The STIX ID of an `identity` object. Used to track the identity of the individual or organization which created the current _version_ of the object. Previous versions of the object may have been created by other individuals or organizations.                                                           |
+| `x_mitre_domains`                         | string[] | Identifies the domains the object is found in. See [domains](#domains) for more information. Not found on `relationship` objects.                                                                                                                                                                           |
+| `x_mitre_attack_spec_version`<sup>1</sup> | string   | The version of the ATT&CK spec used by the object. Consuming software can use this field to determine if the data format is supported. If the field is not present on an object the spec version will be assumed to be `2.0.0`. See [the ATT&CK Spec](#the-attck-spec) for the current spec version number. |
 
-    <sup>1</sup> these fields were added in the upgrade to STIX 2.1 and are not available in [the STIX 2.0 dataset](https://github.com/mitre/cti).
+    <sup>1</sup> `x_mitre_attack_spec_version` is easily confused with [`spec_version`](https://docs.oasis-open.org/cti/stix/v2.1/os/stix-v2.1-os.html#_xzbicbtscatx), which tracks the version of the STIX spec used by the object and is a required field in STIX. `x_mitre_attack_spec_version` tracks the version of MITRE ATT&CK's extensions to the STIX spec.
 
-    <sup>2</sup> `x_mitre_attack_spec_version` is easily confused with [`spec_version`](https://docs.oasis-open.org/cti/stix/v2.1/os/stix-v2.1-os.html#_xzbicbtscatx), which tracks the version of the STIX spec used by the object and is a required field in STIX. `x_mitre_attack_spec_version` tracks the version of MITRE ATT&CK's extensions to the STIX spec.
-
--   New relationship types. Unlike custom object types and extended fields, custom relationship types are **not** prefixed with `x_mitre_`. You can find a full list of relationship types in the [Relationships](#Relationships) section, which also mentions whether the type is a default STIX type.
+- New relationship types. Unlike custom object types and extended fields, custom relationship types are **not** prefixed with `x_mitre_`. You can find a full list of relationship types in the [Relationships](#Relationships) section, which also mentions whether the type is a default STIX type.
 
 Please see also the STIX documentation on [customizing STIX](https://docs.oasis-open.org/cti/stix/v2.0/csprd01/part1-stix-core/stix-v2.0-csprd01-part1-stix-core.html#_Toc476227365).
 
 ## Domains
 
-Most objects in ATT&CK belong in a single technology domain, but on rare occasion an object can be included in multiple domains. The `x_mitre_domains` string[] field present on most object types identifies the domains of the object. The values of `x_mitre_domains` is as follows:
+Most objects in ATT&CK belong in a single technology domain, but on occasion an object can be included in multiple domains. The `x_mitre_domains` string[] field present on most object types identifies the domains of the object. The values of `x_mitre_domains` is as follows:
 
 | identifier          | domain         |
 | :------------------ | :------------- |
 | `enterprise-attack` | Enterprise     |
 | `mobile-attack`     | Mobile         |
 | `ics-attack`        | ATT&CK for ICS |
-
-In some cases objects can included in the collection of a domain it does not belong to. This occurs when objects have relationships that cross the domain boundary, and the target object is included for context. For instance, consider a group which operates in both Enterprise and Mobile. If that group has a relationship to an Enterprise-only software, that software will still be included in the Mobile collection so that the relevant relationship is not missing its target. These objects can easily be removed by filtering using the `x_mitre_domains` field if so desired.
 
 ## IDs in ATT&CK
 
@@ -160,6 +158,7 @@ The most commonly used ID format is what is referred to as the ATT&CK ID or simp
 | [Group](#groups)                 | `Gxxxx`                       |
 | [Software](#software)            | `Sxxxx`                       |
 | [Data Source](#data-source)      | `DSxxxx`                      |
+| [Campaign](#campaigns)           | `Cxxxx`                       |
 
 ATT&CK IDs are typically, but not always, unique. See [Collisions with Technique ATT&CK IDs](#collisions-with-technique-attck-ids) for an edge case involving ID collisions between mitigations and techniques. Matrices that exist within the same domain will have the same ATT&CK ID.
 
@@ -230,7 +229,7 @@ Additionally:
 -   Sub-techniques have the same tactics as their parent technique.
 -   Sub-techniques have a subset of their parent technique's platforms.
 
-Sub-techniques only exist in the enterprise domain.
+Sub-techniques only exist in the Enterprise and Mobile domains.
 
 ### Procedures
 
@@ -311,6 +310,17 @@ Data Components extend the generic SDO format with the following field:
 | :------------------------ | :----------------------------- | ------------------------------------------------------- |
 | `x_mitre_data_source_ref` | embedded relationship (string) | STIX ID of the data source this component is a part of. |
 
+### Campaigns
+
+A Campaign in ATT&CK is defined as a [campaign](http://docs.oasis-open.org/cti/stix/v2.0/csprd01/part2-stix-objects/stix-v2.0-csprd01-part2-stix-objects.html#_Toc476230925) object.
+
+Campaigns extend the generic SDO format with the following fields:
+
+| Field | Type | Description |
+|:------|:-----|-------------|
+| `x_mitre_first_seen_citation` | string | One to many citations for when the Campaign was first reported in the form “(Citation: \<citation name>)” where \<citation name> can be found as one of the source_name of one of the external_references. |
+| `x_mitre_last_seen_citation` | string | One to many citations for when the Campaign was last reported in the form “(Citation: \<citation name>)” where \<citation name> can be found as one of the source_name of one of the external_references.
+
 ### Relationships
 
 Objects in ATT&CK are related to each other via STIX [relationship](https://docs.oasis-open.org/cti/stix/v2.0/csprd01/part2-stix-objects/stix-v2.0-csprd01-part2-stix-objects.html#_Toc476230970) objects. These relationships convey concepts like groups using techniques (also called "procedure examples" on the technique pages), the hierarchy of techniques and sub-techniques, and so on.
@@ -322,6 +332,9 @@ Relationships oftentimes have descriptions which contextualize the relationship 
 | `intrusion-set`          | `uses`            | `malware` or `tool` | No           | Group using a software.                                                                                                                                                                                                                                                                                               |
 | `intrusion-set`          | `uses`            | `attack-pattern`    | No           | Group using a technique, which is also considered a procedure example.                                                                                                                                                                                                                                                |
 | `malware` or `tool`      | `uses`            | `attack-pattern`    | No           | Software using a technique, which is also considered a procedure example.                                                                                                                                                                                                                                             |
+| `campaign` | `uses` | `malware` or `tool` | No | Campaign using a software. |
+| `campaign` | `uses` | `attack-pattern` | No | Campaign using a technique, which is also considered a procedure example. |
+| `campaign` | `attributed-to` | `intrusion-set` | No | Campaign attributed to a group. |
 | `course-of-action`       | `mitigates`       | `attack-pattern`    | No           | Mitigation mitigating technique.                                                                                                                                                                                                                                                                                      |
 | `attack-pattern`         | `subtechnique-of` | `attack-pattern`    | Yes          | Sub-technique of a technique, where the `source_ref` is the sub-technique and the `target_ref` is the parent technique.                                                                                                                                                                                               |
 | `x-mitre-data-component` | `detects`         | `attack-pattern`    | Yes          | Data component detecting a technique.                                                                                                                                                                                                                                                                                 |
@@ -744,7 +757,6 @@ The argument to each accessor function is a STIX2 MemoryStore to build the relat
 from pprint import pprint
 from stix2 import MemoryStore, Filter
 
-
 # See section below on "Removing revoked and deprecated objects"
 def remove_revoked_deprecated(stix_objects):
     """Remove any revoked or deprecated objects from queries made to the data source"""
@@ -756,7 +768,6 @@ def remove_revoked_deprecated(stix_objects):
             stix_objects
         )
     )
-
 
 def get_related(thesrc, src_type, rel_type, target_type, reverse=False):
     """build relationship mappings
@@ -838,32 +849,161 @@ def get_related(thesrc, src_type, rel_type, target_type, reverse=False):
         output[stix_id] = value
     return output
 
-
 # software:group
 def software_used_by_groups(thesrc):
-    """returns group_id => {software, relationship} for each software used by the group."""
+    """returns group_id => {software, relationship} for each software used by the group and each software used by campaigns attributed to the group."""
+    # get all software used by groups
     tools_used_by_group = get_related(thesrc, "intrusion-set", "uses", "tool")
     malware_used_by_group = get_related(thesrc, "intrusion-set", "uses", "malware")
-    return {**tools_used_by_group, **malware_used_by_group}
+    software_used_by_group = {**tools_used_by_group, **malware_used_by_group} # group_id -> {software, relationship}
 
+    # get groups attributing to campaigns and all software used by campaigns
+    software_used_by_campaign = get_related(thesrc, "campaign", "uses", "tool")
+    malware_used_by_campaign = get_related(thesrc, "campaign", "uses", "malware")
+    for id in malware_used_by_campaign:
+        if id in software_used_by_campaign:
+            software_used_by_campaign[id].extend(malware_used_by_campaign[id])
+        else:
+            software_used_by_campaign[id] = malware_used_by_campaign[id]
+    campaigns_attributed_to_group = {
+        "campaigns": get_related(thesrc, "campaign", "attributed-to", "intrusion-set", reverse=True), # group_id => {campaign, relationship}
+        "software": software_used_by_campaign # campaign_id => {software, relationship}
+    }
+
+    for group_id in campaigns_attributed_to_group["campaigns"]:
+        software_used_by_campaigns = []
+        # check if attributed campaign is using software
+        for campaign in campaigns_attributed_to_group["campaigns"][group_id]:
+            campaign_id = campaign["object"]["id"]
+            if campaign_id in campaigns_attributed_to_group["software"]:
+                software_used_by_campaigns.extend(campaigns_attributed_to_group["software"][campaign_id])
+        
+        # update software used by group to include software used by a groups attributed campaign
+        if group_id in software_used_by_group:
+            software_used_by_group[group_id].extend(software_used_by_campaigns)
+        else:
+            software_used_by_group[group_id] = software_used_by_campaigns
+    return software_used_by_group
 
 def groups_using_software(thesrc):
-    """returns software_id => {group, relationship} for each group using the software."""
+    """returns software_id => {group, relationship} for each group using the software and each software used by attributed campaigns."""
+    # get all groups using software
     groups_using_tool = get_related(thesrc, "intrusion-set", "uses", "tool", reverse=True)
     groups_using_malware = get_related(thesrc, "intrusion-set", "uses", "malware", reverse=True)
-    return {**groups_using_tool, **groups_using_malware}
+    groups_using_software = {**groups_using_tool, **groups_using_malware} # software_id => {group, relationship}
 
+    # get campaigns attributed to groups and all campaigns using software
+    campaigns_using_software = get_related(thesrc, "campaign", "uses", "tool", reverse=True)
+    campaigns_using_malware = get_related(thesrc, "campaign", "uses", "malware", reverse=True)
+    for id in campaigns_using_malware:
+        if id in campaigns_using_software:
+            campaigns_using_software[id].extend(campaigns_using_malware[id])
+        else:
+            campaigns_using_software[id] = campaigns_using_malware[id]
+    groups_attributing_to_campaigns = {
+        "campaigns": campaigns_using_software,# software_id => {campaign, relationship}
+        "groups": get_related(thesrc, "campaign", "attributed-to", "intrusion-set") # campaign_id => {group, relationship}
+    }
+
+    for software_id in groups_attributing_to_campaigns["campaigns"]:
+        groups_attributed_to_campaigns = []
+        # check if campaign is attributed to group
+        for campaign in groups_attributing_to_campaigns["campaigns"][software_id]:
+            campaign_id = campaign["object"]["id"]
+            if campaign_id in groups_attributing_to_campaigns["groups"]:
+                groups_attributed_to_campaigns.extend(groups_attributing_to_campaigns["groups"][campaign_id])
+        
+        # update groups using software to include software used by a groups attributed campaign
+        if software_id in groups_using_software:
+            groups_using_software[software_id].extend(groups_attributed_to_campaigns)
+        else:
+            groups_using_software[software_id] = groups_attributed_to_campaigns
+    return groups_using_software
+
+# software:campaign
+def software_used_by_campaigns(thesrc):
+    """returns campaign_id => {software, relationship} for each software used by the campaign."""
+    tools_used_by_campaign = get_related(thesrc, "campaign", "uses", "tool")
+    malware_used_by_campaign = get_related(thesrc, "campaign", "uses", "malware")
+    return {**tools_used_by_campaign, **malware_used_by_campaign}
+
+def campaigns_using_software(thesrc):
+    """returns software_id => {campaign, relationship} for each campaign using the software."""
+    campaigns_using_tool = get_related(thesrc, "campaign", "uses", "tool", reverse=True)
+    campaigns_using_malware = get_related(thesrc, "campaign", "uses", "malware", reverse=True)
+    return {**campaigns_using_tool, **campaigns_using_malware}
+
+# campaign:group
+def groups_attributing_to_campaign(thesrc):
+    """returns campaign_id => {group, relationship} for each group attributing to the campaign."""
+    return get_related(thesrc, "campaign", "attributed-to", "intrusion-set")
+
+def campaigns_attributed_to_group(thesrc):
+    """returns group_id => {campaign, relationship} for each campaign attributed to the group."""
+    return get_related(thesrc, "campaign", "attributed-to", "intrusion-set", reverse=True)
 
 # technique:group
 def techniques_used_by_groups(thesrc):
-    """returns group_id => {technique, relationship} for each technique used by the group."""
-    return get_related(thesrc, "intrusion-set", "uses", "attack-pattern")
+    """returns group_id => {technique, relationship} for each technique used by the group and each
+       technique used by campaigns attributed to the group."""
+    # get all techniques used by groups
+    techniques_used_by_groups = get_related(thesrc, "intrusion-set", "uses", "attack-pattern") # group_id => {technique, relationship}
 
+    # get groups attributing to campaigns and all techniques used by campaigns
+    campaigns_attributed_to_group = {
+        "campaigns": get_related(thesrc, "campaign", "attributed-to", "intrusion-set", reverse=True), # group_id => {campaign, relationship}
+        "techniques": get_related(thesrc, "campaign", "uses", "attack-pattern") # campaign_id => {technique, relationship}
+    }
+
+    for group_id in campaigns_attributed_to_group["campaigns"]:
+        techniques_used_by_campaigns = []
+        # check if attributed campaign is using technique
+        for campaign in campaigns_attributed_to_group["campaigns"][group_id]:
+            campaign_id = campaign["object"]["id"]
+            if campaign_id in campaigns_attributed_to_group["techniques"]:
+                techniques_used_by_campaigns.extend(campaigns_attributed_to_group["techniques"][campaign_id])
+
+        # update techniques used by groups to include techniques used by a groups attributed campaign
+        if group_id in techniques_used_by_groups:
+            techniques_used_by_groups[group_id].extend(techniques_used_by_campaigns)
+        else:
+            techniques_used_by_groups[group_id] = techniques_used_by_campaigns
+    return techniques_used_by_groups
 
 def groups_using_technique(thesrc):
-    """returns technique_id => {group, relationship} for each group using the technique."""
-    return get_related(thesrc, "intrusion-set", "uses", "attack-pattern", reverse=True)
+    """returns technique_id => {group, relationship} for each group using the technique and each campaign attributed to groups using the technique."""
+    # get all groups using techniques
+    groups_using_techniques = get_related(thesrc, "intrusion-set", "uses", "attack-pattern", reverse=True) # technique_id => {group, relationship}
 
+    # get campaigns attributed to groups and all campaigns using techniques
+    groups_attributing_to_campaigns = {
+        "campaigns": get_related(thesrc, "campaign", "uses", "attack-pattern", reverse=True), # technique_id => {campaign, relationship}
+        "groups": get_related(thesrc, "campaign", "attributed-to", "intrusion-set") # campaign_id => {group, relationship}
+    }
+
+    for technique_id in groups_attributing_to_campaigns["campaigns"]:
+        campaigns_attributed_to_group = []
+        # check if campaign is attributed to group
+        for campaign in groups_attributing_to_campaigns["campaigns"][technique_id]:
+            campaign_id = campaign["object"]["id"]
+            if campaign_id in groups_attributing_to_campaigns["groups"]:
+                campaigns_attributed_to_group.extend(groups_attributing_to_campaigns["groups"][campaign_id])
+        
+        # update groups using techniques to include techniques used by a groups attributed campaign
+        if technique_id in groups_using_techniques:
+            groups_using_techniques[technique_id].extend(campaigns_attributed_to_group)
+        else:
+            groups_using_techniques[technique_id] = campaigns_attributed_to_group
+    return groups_using_techniques
+
+# technique:campaign
+def techniques_used_by_campaigns(thesrc):
+    """returns campaign_id => {technique, relationship} for each technique used by the campaign."""
+    return get_related(thesrc, "campaign", "uses", "attack-pattern")
+
+def campaigns_using_technique(thesrc):
+    """returns technique_id => {campaign, relationship} for each campaign using the technique."""
+    return get_related(thesrc, "campaign", "uses", "attack-pattern", reverse=True)
 
 # technique:software
 def techniques_used_by_software(thesrc):
@@ -872,46 +1012,38 @@ def techniques_used_by_software(thesrc):
     techniques_by_malware = get_related(thesrc, "malware", "uses", "attack-pattern")
     return {**techniques_by_tool, **techniques_by_malware}
 
-
 def software_using_technique(thesrc):
     """return technique_id  => {software, relationship} for each software using the technique."""
     tools_by_technique_id = get_related(thesrc, "tool", "uses", "attack-pattern", reverse=True)
     malware_by_technique_id = get_related(thesrc, "malware", "uses", "attack-pattern", reverse=True)
     return {**tools_by_technique_id, **malware_by_technique_id}
 
-
 # technique:mitigation
 def mitigation_mitigates_techniques(thesrc):
     """return mitigation_id => {technique, relationship} for each technique mitigated by the mitigation."""
     return get_related(thesrc, "course-of-action", "mitigates", "attack-pattern", reverse=False)
 
-
 def technique_mitigated_by_mitigations(thesrc):
     """return technique_id => {mitigation, relationship} for each mitigation of the technique."""
     return get_related(thesrc, "course-of-action", "mitigates", "attack-pattern", reverse=True)
-
 
 # technique:sub-technique
 def subtechniques_of(thesrc):
     """return technique_id => {subtechnique, relationship} for each subtechnique of the technique."""
     return get_related(thesrc, "attack-pattern", "subtechnique-of", "attack-pattern", reverse=True)
 
-
 def parent_technique_of(thesrc):
     """return subtechnique_id => {technique, relationship} describing the parent technique of the subtechnique"""
     return get_related(thesrc, "attack-pattern", "subtechnique-of", "attack-pattern")[0]
-
 
 # technique:data-component
 def datacomponent_detects_techniques(thesrc):
     """return datacomponent_id => {technique, relationship} describing the detections of each data component"""
     return get_related(thesrc, "x-mitre-data-component", "detects", "attack-pattern")
 
-
 def technique_detected_by_datacomponents(thesrc):
     """return technique_id => {datacomponent, relationship} describing the data components that can detect the technique"""
     return get_related(thesrc, "x-mitre-data-component", "detects", "attack-pattern", reverse=True)
-
 
 # Example usage:
 src = MemoryStore()
